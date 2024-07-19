@@ -171,12 +171,33 @@ QUESTIONS:
 /* Q10: Produce a list of facilities with a total revenue less than 1000.
 The output of facility name and total revenue, sorted by revenue. Remember
 that there's a different cost for guests and members! */
-
+ SELECT name, SUM(
+        CASE WHEN memid = 0 THEN guestcost
+            ELSE membercost END) as revenue
+        FROM FACILITIES
+        INNER JOIN Bookings
+        USING (facid)
+        GROUP BY name
+        ORDER BY revenue
 /* Q11: Produce a report of members and who recommended them in alphabetic surname,firstname order */
-
+SELECT surname, firstname, recommendedby
+        FROM Members
+        ORDER BY surname, firstname
 
 /* Q12: Find the facilities with their usage by member, but not guests */
-
+SELECT name, COUNT(
+            CASE WHEN memid > 0 THEN 1
+                ELSE NULL END) as usage
+        FROM Facilities as f
+        INNER JOIN Bookings USING (facid)
+        GROUP BY name
+        ORDER BY usage DESC
 
 /* Q13: Find the facilities usage by month, but not guests */
-
+SELECT name, strftime('%m', starttime) AS month, COUNT(
+            CASE WHEN memid > 0 THEN 1
+                ELSE NULL END) as usage
+        FROM Facilities as f
+        INNER JOIN Bookings USING (facid)
+        GROUP BY name, month
+        ORDER BY usage DESC
